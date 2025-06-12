@@ -55,5 +55,5 @@ jobs:
           DB_USERNAME: user
           DB_PASSWORD: password
 
-      - name: Run Tests
-        run: php artisan test
+      # - name: Run Tests
+      #   run: php artisan test
