@@ -19,6 +19,9 @@ export default {
                 "dark-card": "#1f2937",
                 "dark-lighter": "#374151",
             },
+            // backgroundImage: {
+            //     "dark-bg": "linear-gradient(to right, #0f172a, #334155)",
+            // },
         },
     },
 

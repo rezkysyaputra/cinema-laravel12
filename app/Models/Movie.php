@@ -33,9 +33,6 @@ class Movie extends Model
      */
     public function getPosterUrlAttribute()
     {
-        if ($this->poster_path) {
-            return asset('storage/' . $this->poster_path);
-        }
-        return asset('images/sample_poster.jpg');
+        return $this->poster_path;
     }
 }

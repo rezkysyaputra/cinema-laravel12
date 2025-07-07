@@ -13,6 +13,13 @@ class Ticket extends Model
         'booking_id',
         'seat_id',
         'price',
+        'is_used',
+        'used_at',
+    ];
+
+    protected $casts = [
+        'is_used' => 'boolean',
+        'used_at' => 'datetime',
     ];
 
     /**
@@ -31,5 +38,13 @@ class Ticket extends Model
     public function seat()
     {
         return $this->belongsTo(Seat::class, 'seat_id');
+    }
+
+    /**
+     * Relasi ke payments melalui booking.
+     */
+    public function payments()
+    {
+        return $this->booking ? $this->booking->payments() : collect();
     }
 }

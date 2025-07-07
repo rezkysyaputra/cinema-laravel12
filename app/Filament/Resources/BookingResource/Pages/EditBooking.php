@@ -13,7 +13,32 @@ class EditBooking extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->label('Hapus Pemesanan'),
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return 'Edit Pemesanan';
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        // Memastikan relasi dimuat sebelum form diisi
+        $booking = $this->getRecord()->load(['user', 'screening.movie', 'screening.studio']);
+
+        // Tambahkan data untuk ditampilkan di form
+        $data['user_name'] = $booking->user ? $booking->user->name : 'Tidak diketahui';
+        $data['screening_info'] = $booking->screening && $booking->screening->movie
+            ? "{$booking->screening->movie->title} ({$booking->screening->studio->name} - {$booking->screening->start_time->format('d M Y H:i')})"
+            : 'Tidak diketahui';
+
+        return $data;
     }
 }

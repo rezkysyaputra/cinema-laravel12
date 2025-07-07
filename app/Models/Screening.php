@@ -16,6 +16,10 @@ class Screening extends Model
         'price',
     ];
 
+    protected $casts = [
+        'start_time' => 'datetime',
+    ];
+
     /**
      * Relasi many-to-one dengan model Film.
      * Setiap jadwal tayang terkait dengan satu film.

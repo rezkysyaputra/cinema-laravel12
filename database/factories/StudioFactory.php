@@ -27,4 +27,22 @@ class StudioFactory extends Factory
             'capacity' => $capacity,
         ];
     }
+
+    public function configure()
+    {
+        return $this->afterCreating(function ($studio) {
+            $rows = ceil($studio->capacity / 10);
+            for ($row = 0; $row < $rows; $row++) {
+                $rowLetter = chr(65 + $row);
+                $seatsInRow = min(10, $studio->capacity - ($row * 10));
+                for ($seat = 1; $seat <= $seatsInRow; $seat++) {
+                    \App\Models\Seat::create([
+                        'studio_id' => $studio->id,
+                        'seat_number' => $seat,
+                        'row_letter' => $rowLetter,
+                    ]);
+                }
+            }
+        });
+    }
 }

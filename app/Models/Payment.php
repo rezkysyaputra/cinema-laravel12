@@ -8,13 +8,23 @@ class Payment extends Model
 {
     protected $fillable = [
         'booking_id',
-        'midtrans_transaction_id',
         'order_id',
-        'gross_amount',
         'payment_type',
         'transaction_status',
-        'transaction_time',
-        'response_json'
+        'transaction_id',
+        'status_message',
+        'gross_amount',
+        'currency',
+        'payment_details',
+        'paid_at',
+        'status'
+    ];
+
+    protected $casts = [
+        'payment_details' => 'array',
+        'paid_at' => 'datetime',
+        'gross_amount' => 'decimal:2',
+        'status' => 'string'
     ];
 
     /**
@@ -25,5 +35,4 @@ class Payment extends Model
     {
         return $this->belongsTo(Booking::class, 'booking_id');
     }
-
 }

@@ -14,33 +14,45 @@ use Illuminate\Support\Str;
 class TicketsRelationManager extends RelationManager
 {
     protected static string $relationship = 'tickets';
+    protected static ?string $title = 'Tiket';
+    protected static ?string $modelLabel = 'Tiket';
+    protected static ?string $pluralModelLabel = 'Tiket';
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('ticket_code')
+                    ->label('Kode Tiket')
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true)
-                    ->default(fn() => Str::random(10)) // Otomatis generate kode tiket
-                    ->disabledOn('edit'), // Tidak bisa diubah setelah dibuat
+                    ->default(fn() => 'TIX-' . strtoupper(Str::random(8)))
+                    ->disabledOn('edit')
+                    ->placeholder('Kode tiket akan dibuat otomatis'),
+
                 Forms\Components\Select::make('seat_id')
                     ->label('Kursi')
                     ->relationship(
                         'seat',
-                        'seat_number',
+                        'code',
                         fn(Builder $query, RelationManager $livewire) =>
                         $query->where('studio_id', $livewire->ownerRecord->screening->studio_id)
                     )
-                    ->getOptionLabelUsing(fn($record) => "{$record->row_letter}{$record->seat_number}")
-                    ->required(),
+                    ->getOptionLabelUsing(fn($record) => $record->row_letter . $record->seat_number)
+                    ->required()
+                    ->searchable()
+                    ->preload(),
+
                 Forms\Components\TextInput::make('price')
+                    ->label('Harga')
                     ->required()
                     ->numeric()
+                    ->prefix('Rp')
                     ->minValue(0.01)
-                    ->maxLength(10)
-                    ->default(fn(RelationManager $livewire) => $livewire->ownerRecord->screening->price), // Default harga dari screening
+                    ->maxValue(1000000)
+                    ->default(fn(RelationManager $livewire) => $livewire->ownerRecord->screening->price)
+                    ->placeholder('Harga tiket'),
             ]);
     }
 
@@ -50,31 +62,54 @@ class TicketsRelationManager extends RelationManager
             ->recordTitleAttribute('ticket_code')
             ->columns([
                 Tables\Columns\TextColumn::make('ticket_code')
+                    ->label('Kode Tiket')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage('Kode tiket berhasil disalin'),
+
+                Tables\Columns\TextColumn::make('seat')
+                    ->label('Kursi')
+                    ->formatStateUsing(fn($record) => $record->seat ? $record->seat->row_letter . $record->seat->seat_number : '-')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('seat.row_letter')
-                    ->label('Baris Kursi')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('seat.seat_number')
-                    ->label('Nomor Kursi')
-                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('price')
-                    ->sortable()
-                    ->money('IDR'),
+                    ->label('Harga')
+                    ->money('IDR')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('is_used')
+                    ->label('Status')
+                    ->badge()
+                    ->color(fn(bool $state): string => match ($state) {
+                        true => 'success',
+                        false => 'gray',
+                    })
+                    ->formatStateUsing(fn(bool $state): string => $state ? 'Sudah Digunakan' : 'Belum Digunakan'),
+
+                Tables\Columns\TextColumn::make('used_at')
+                    ->label('Waktu Penggunaan')
+                    ->dateTime('d M Y H:i')
+                    ->placeholder('-')
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                // Tidak ada tombol tambah karena tiket dibuat otomatis saat booking
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->label('Edit'),
+                Tables\Actions\DeleteAction::make()
+                    ->label('Hapus'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Hapus yang Dipilih'),
                 ]),
             ]);
     }

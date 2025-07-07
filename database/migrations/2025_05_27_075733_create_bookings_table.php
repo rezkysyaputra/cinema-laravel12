@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('screening_id')->constrained()->onDelete('cascade');
             $table->decimal('total_price', 8, 2);
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
     }

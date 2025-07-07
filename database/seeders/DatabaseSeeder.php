@@ -6,7 +6,7 @@ use App\Models\Movie;
 use App\Models\Seat;
 use App\Models\Studio;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Seeders\ScreeningSeeder;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 
@@ -17,45 +17,58 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create movies
-        Movie::factory(20)->create();
+        // Create roles if they don't exist
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $userRole = Role::firstOrCreate(['name' => 'user']);
 
-        // Create studios with seats
-        $studios = Studio::factory(3)->create();
-        foreach ($studios as $studio) {
-            // Create seats for each studio based on its capacity
-            $rows = ceil($studio->capacity / 10);
-            for ($row = 0; $row < $rows; $row++) {
-                $rowLetter = chr(65 + $row);
-                $seatsInRow = min(10, $studio->capacity - ($row * 10));
+        // Create admin user if not exists
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin',
+                'password' => bcrypt('password'),
+            ]
+        );
+        $admin->assignRole($adminRole);
 
-                for ($seat = 1; $seat <= $seatsInRow; $seat++) {
-                    Seat::create([
-                        'studio_id' => $studio->id,
-                        'seat_number' => $seat,
-                        'row_letter' => $rowLetter,
-                    ]);
-                }
-            }
+        // Create regular user if not exists
+        $user = User::firstOrCreate(
+            ['email' => 'user@example.com'],
+            [
+                'name' => 'User',
+                'password' => bcrypt('password'),
+            ]
+        );
+        $user->assignRole($userRole);
+
+        // Create additional users only if total users less than 10
+        $userCount = User::count();
+        if ($userCount < 10) {
+            User::factory(10 - $userCount)->create()->each(function ($user) use ($userRole) {
+                $user->assignRole($userRole);
+            });
         }
 
-        // Create screenings
-        \App\Models\Screening::factory(30)->create();
+        // Create studios with different configurations
+        $studioConfigs = [
+            ['name' => 'Studio 1', 'row' => 8, 'column' => 12], // 96 seats
+            ['name' => 'Studio 2', 'row' => 6, 'column' => 10], // 60 seats
+            ['name' => 'Studio 3', 'row' => 7, 'column' => 8],  // 56 seats
+        ];
 
-        // Create users with roles
-        $user = User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-        $admin = User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-        ]);
+        foreach ($studioConfigs as $config) {
+            Studio::create([
+                'name' => $config['name'],
+                'row' => $config['row'],
+                'column' => $config['column'],
+                'capacity' => $config['row'] * $config['column'],
+            ]);
+        }
 
-        Role::create(['name' => 'admin']);
-        Role::create(['name' => 'user']);
+        // Seed movies
+        $this->call(MovieSeeder::class);
 
-        $admin->assignRole('admin');
-        $user->assignRole('user');
+        // Seed screenings
+        $this->call(ScreeningSeeder::class);
     }
 }

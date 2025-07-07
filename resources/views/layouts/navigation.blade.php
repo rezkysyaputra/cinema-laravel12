@@ -5,10 +5,7 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                        <svg class="w-8 h-8 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path>
-                        </svg>
-                        <h1 class="text-xl font-bold text-orange-500">MovieApp</h1>
+                        <h1 class="text-xl font-bold text-orange-500">CINETIX</h1>
                     </a>
                 </div>
 
@@ -74,10 +71,7 @@
         <header class="px-4 py-4 bg-dark-bg border-b border-gray-800">
             <div class="flex items-center justify-between">
                 <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                    <svg class="w-8 h-8 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path>
-                    </svg>
-                    <h1 class="text-xl font-bold text-orange-500">MovieApp</h1>
+                    <h1 class="text-xl font-bold text-orange-500">CINETIX</h1>
                 </a>
 
                 @auth
@@ -107,6 +101,9 @@
                 <div class="flex items-center space-x-2">
                     <a href="{{ route('login') }}" class="px-3 py-1.5 rounded-lg bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition">
                         Login
+                    </a>
+                    <a href="{{ route('register') }}" class="px-3 py-1.5 rounded-lg border border-orange-500 text-orange-500 text-sm font-medium hover:bg-orange-500 hover:text-white transition">
+                        Register
                     </a>
                 </div>
                 @endauth

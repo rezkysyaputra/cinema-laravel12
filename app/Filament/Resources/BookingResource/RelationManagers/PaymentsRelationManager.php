@@ -14,54 +14,77 @@ use Illuminate\Support\Str;
 class PaymentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'payments';
+    protected static ?string $title = 'Pembayaran';
+    protected static ?string $modelLabel = 'Pembayaran';
+    protected static ?string $pluralModelLabel = 'Pembayaran';
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('order_id')
+                    ->label('ID Pesanan')
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true)
-                    ->default(fn(RelationManager $livewire) => 'BOOK-' . $livewire->ownerRecord->id . '-' . Str::random(5)) // Contoh Order ID
-                    ->disabledOn('edit'),
+                    ->default(fn(RelationManager $livewire) => 'BOOK-' . $livewire->ownerRecord->id . '-' . strtoupper(Str::random(5)))
+                    ->disabledOn('edit')
+                    ->placeholder('ID pesanan akan dibuat otomatis'),
+
                 Forms\Components\TextInput::make('midtrans_transaction_id')
+                    ->label('ID Transaksi Midtrans')
                     ->maxLength(255)
                     ->nullable()
-                    ->unique(ignoreRecord: true),
+                    ->unique(ignoreRecord: true)
+                    ->placeholder('ID transaksi dari Midtrans'),
+
                 Forms\Components\TextInput::make('gross_amount')
+                    ->label('Jumlah Pembayaran')
                     ->required()
                     ->numeric()
+                    ->prefix('Rp')
                     ->minValue(0.01)
-                    ->maxLength(10)
-                    ->default(fn(RelationManager $livewire) => $livewire->ownerRecord->total_price), // Default dari total_price booking
+                    ->maxValue(10000000)
+                    ->default(fn(RelationManager $livewire) => $livewire->ownerRecord->total_price)
+                    ->placeholder('Jumlah yang harus dibayar'),
+
                 Forms\Components\Select::make('payment_type')
+                    ->label('Metode Pembayaran')
                     ->options([
-                        'credit_card' => 'Credit Card',
-                        'bank_transfer' => 'Bank Transfer',
+                        'credit_card' => 'Kartu Kredit',
+                        'bank_transfer' => 'Transfer Bank',
                         'gopay' => 'GoPay',
                         'qris' => 'QRIS',
                         'other' => 'Lain-lain',
                     ])
-                    ->required(),
+                    ->required()
+                    ->placeholder('Pilih metode pembayaran'),
+
                 Forms\Components\Select::make('transaction_status')
+                    ->label('Status Transaksi')
                     ->options([
-                        'pending' => 'Pending',
-                        'settlement' => 'Settlement (Berhasil)',
-                        'expire' => 'Expired',
+                        'pending' => 'Menunggu Pembayaran',
+                        'settlement' => 'Berhasil',
+                        'expire' => 'Kadaluarsa',
                         'cancel' => 'Dibatalkan',
                         'deny' => 'Ditolak',
-                        'refund' => 'Refund',
+                        'refund' => 'Dikembalikan',
                     ])
                     ->required()
-                    ->default('pending'),
+                    ->default('pending')
+                    ->placeholder('Status transaksi'),
+
                 Forms\Components\DateTimePicker::make('transaction_time')
+                    ->label('Waktu Transaksi')
                     ->required()
-                    ->default(now()),
+                    ->default(now())
+                    ->placeholder('Waktu transaksi dilakukan'),
+
                 Forms\Components\Textarea::make('response_json')
-                    ->label('Midtrans JSON Response')
+                    ->label('Response JSON Midtrans')
                     ->columnSpan('full')
-                    ->nullable(),
+                    ->nullable()
+                    ->placeholder('Response JSON dari Midtrans (opsional)'),
             ]);
     }
 
@@ -71,59 +94,95 @@ class PaymentsRelationManager extends RelationManager
             ->recordTitleAttribute('order_id')
             ->columns([
                 Tables\Columns\TextColumn::make('order_id')
+                    ->label('ID Pesanan')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage('ID pesanan berhasil disalin'),
+
                 Tables\Columns\TextColumn::make('midtrans_transaction_id')
-                    ->label('Midtrans ID')
+                    ->label('ID Transaksi Midtrans')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->placeholder('-'),
+
                 Tables\Columns\TextColumn::make('gross_amount')
-                    ->sortable()
-                    ->money('IDR'),
-                Tables\Columns\TextColumn::make('payment_type')
+                    ->label('Jumlah Pembayaran')
+                    ->money('IDR')
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('payment_type')
+                    ->label('Metode Pembayaran')
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'credit_card' => 'Kartu Kredit',
+                        'bank_transfer' => 'Transfer Bank',
+                        'gopay' => 'GoPay',
+                        'qris' => 'QRIS',
+                        'other' => 'Lain-lain',
+                        default => ucfirst($state),
+                    })
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('transaction_status')
-                    ->sortable()
+                    ->label('Status Transaksi')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'pending' => 'warning',
                         'settlement' => 'success',
                         'expire', 'cancel', 'deny' => 'danger',
-                        default => 'info',
-                    }),
+                        'refund' => 'info',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'pending' => 'Menunggu Pembayaran',
+                        'settlement' => 'Berhasil',
+                        'expire' => 'Kadaluarsa',
+                        'cancel' => 'Dibatalkan',
+                        'deny' => 'Ditolak',
+                        'refund' => 'Dikembalikan',
+                        default => ucfirst($state),
+                    })
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('transaction_time')
-                    ->dateTime()
+                    ->label('Waktu Transaksi')
+                    ->dateTime('d M Y H:i')
                     ->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('transaction_status')
+                    ->label('Status Transaksi')
                     ->options([
-                        'pending' => 'Pending',
-                        'settlement' => 'Settlement (Berhasil)',
-                        'expire' => 'Expired',
+                        'pending' => 'Menunggu Pembayaran',
+                        'settlement' => 'Berhasil',
+                        'expire' => 'Kadaluarsa',
                         'cancel' => 'Dibatalkan',
                         'deny' => 'Ditolak',
-                        'refund' => 'Refund',
+                        'refund' => 'Dikembalikan',
                     ]),
                 Tables\Filters\SelectFilter::make('payment_type')
+                    ->label('Metode Pembayaran')
                     ->options([
-                        'credit_card' => 'Credit Card',
-                        'bank_transfer' => 'Bank Transfer',
+                        'credit_card' => 'Kartu Kredit',
+                        'bank_transfer' => 'Transfer Bank',
                         'gopay' => 'GoPay',
                         'qris' => 'QRIS',
                         'other' => 'Lain-lain',
                     ]),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                // Tidak ada tombol tambah karena pembayaran dibuat otomatis saat booking
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->label('Edit'),
+                Tables\Actions\DeleteAction::make()
+                    ->label('Hapus'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Hapus yang Dipilih'),
                 ]),
             ]);
     }

@@ -14,6 +14,11 @@ class Booking extends Model
         'user_id',
         'screening_id',
         'total_price',
+        'status'
+    ];
+
+    protected $casts = [
+        'total_price' => 'decimal:2',
     ];
 
 

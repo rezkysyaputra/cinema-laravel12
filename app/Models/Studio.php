@@ -12,6 +12,8 @@ class Studio extends Model
     protected $fillable = [
         'name',
         'capacity',
+        'row',
+        'column'
     ];
 
     /**

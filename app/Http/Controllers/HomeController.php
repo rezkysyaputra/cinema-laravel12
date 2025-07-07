@@ -11,33 +11,21 @@ class HomeController extends Controller
     {
         $now = now();
 
-        // Get movies that have screenings today
+        // Now Showing: Film yang punya screening hari ini atau yang akan datang
         $nowShowing = Movie::whereHas('screenings', function ($query) use ($now) {
-            $query->where('start_time', '>=', $now->startOfDay())
-                ->where('start_time', '<=', $now->copy()->endOfDay());
+            $query->where('start_time', '>=', $now->startOfDay());
         })
             ->with([
                 'screenings' => function ($query) use ($now) {
-                    $query->where('start_time', '>=', $now->startOfDay())
-                        ->where('start_time', '<=', $now->copy()->endOfDay());
+                    $query->where('start_time', '>=', $now->startOfDay());
                 }
             ])
             ->latest()
             ->take(4)
             ->get();
 
-        // Get movies that have screenings in the future (after today)
-        $comingSoon = Movie::whereHas('screenings', function ($query) use ($now) {
-            $query->where('start_time', '>', $now->endOfDay());
-        })
-            ->with([
-                'screenings' => function ($query) use ($now) {
-                    $query->where('start_time', '>', $now->endOfDay());
-                }
-            ])
-            ->latest()
-            ->take(4)
-            ->get();
+        // Coming Soon: Film yang belum punya screening (tanpa cek release_date)
+        $comingSoon = Movie::doesntHave('screenings')->latest()->take(4)->get();
 
         return view('home', compact('nowShowing', 'comingSoon'));
     }

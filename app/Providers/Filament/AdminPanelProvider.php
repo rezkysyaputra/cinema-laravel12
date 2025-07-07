@@ -27,6 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('CINETIX')
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -39,6 +40,8 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
+                \App\Filament\Widgets\StatsOverviewWidget::class,
+                \App\Filament\Widgets\BookingPerDayChartWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

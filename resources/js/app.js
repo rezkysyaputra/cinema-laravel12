@@ -3,10 +3,7 @@ import "./bootstrap";
 import Alpine from "alpinejs";
 
 window.Alpine = Alpine;
-
-Alpine.start();
-
-function movieApp() {
+window.movieApp = function () {
     return {
         // Basic State
         userName: "Movie Lover",
@@ -55,4 +52,6 @@ function movieApp() {
             this.closeMovieDetail();
         },
     };
-}
+};
+
+Alpine.start();

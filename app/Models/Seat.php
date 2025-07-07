@@ -11,8 +11,9 @@ class Seat extends Model
 
     protected $fillable = [
         'studio_id',
-        'seat_number',
-        'row_letter',
+        'code',
+        'row',
+        'number'
     ];
 
     /**
@@ -40,5 +41,21 @@ class Seat extends Model
     public function tickets()
     {
         return $this->hasMany(Ticket::class, 'seat_id');
+    }
+
+    /**
+     * Accessor untuk row_letter (mengkonversi row number ke letter)
+     */
+    public function getRowLetterAttribute()
+    {
+        return chr(64 + $this->row); // 65 = 'A', 66 = 'B', dst
+    }
+
+    /**
+     * Accessor untuk seat_number (alias untuk number)
+     */
+    public function getSeatNumberAttribute()
+    {
+        return $this->number;
     }
 }

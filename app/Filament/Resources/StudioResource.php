@@ -21,6 +21,9 @@ class StudioResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Manajemen Konten';
+    protected static ?int $navigationSort = 2;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -34,6 +37,20 @@ class StudioResource extends Resource
                     ->numeric()
                     ->integer()
                     ->minValue(1),
+                TextInput::make('row')
+                    ->required()
+                    ->numeric()
+                    ->integer()
+                    ->minValue(1)
+                    ->label('Jumlah Baris')
+                    ->helperText('Jumlah baris kursi di studio'),
+                TextInput::make('column')
+                    ->required()
+                    ->numeric()
+                    ->integer()
+                    ->minValue(1)
+                    ->label('Jumlah Kolom')
+                    ->helperText('Jumlah kolom kursi di studio'),
             ]);
     }
 
@@ -45,6 +62,12 @@ class StudioResource extends Resource
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('capacity')
+                    ->sortable(),
+                TextColumn::make('row')
+                    ->label('Baris')
+                    ->sortable(),
+                TextColumn::make('column')
+                    ->label('Kolom')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -71,7 +94,6 @@ class StudioResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\ScreeningsRelationManager::class,
             RelationManagers\SeatsRelationManager::class,
         ];
     }

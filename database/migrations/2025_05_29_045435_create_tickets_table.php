@@ -14,6 +14,8 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('booking_id')->constrained()->onDelete('cascade');
             $table->foreignId('seat_id')->constrained()->onDelete('cascade');
+
+            $table->string('ticket_code')->unique();
             $table->decimal('price', 8, 2);
             $table->timestamps();
 

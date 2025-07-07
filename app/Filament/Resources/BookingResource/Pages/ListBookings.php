@@ -13,7 +13,12 @@ class ListBookings extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            // Tidak ada tombol create karena booking dibuat otomatis saat user melakukan pemesanan
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return 'Daftar Pemesanan';
     }
 }

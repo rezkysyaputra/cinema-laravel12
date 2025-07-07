@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'CINETIX') }}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -16,9 +16,33 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
-<body class="bg-dark-bg text-white min-h-screen" x-data="movieApp()">
+<body class="bg-dark-bg text-white min-h-screen">
     @include('layouts.navigation')
+
+    <!-- Toast Notification -->
+    <div x-data="{ show: false, message: '', type: 'success', timeout: null }" x-show="show" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-2" x-init="window.addEventListener('toast', e => {
+            message = e.detail.message;
+            type = e.detail.type || 'success';
+            show = true;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => show = false, 3000);
+         })" class="fixed top-6 right-6 z-50 min-w-[220px] max-w-xs px-4 py-3 rounded-lg shadow-lg flex items-center gap-3" :class="{
+            'bg-green-600 text-white': type === 'success',
+            'bg-red-600 text-white': type === 'error',
+            'bg-yellow-500 text-black': type === 'warning',
+            'bg-blue-600 text-white': type === 'info',
+         }" style="display: none;">
+        <template x-if="type === 'success'"><i class="fas fa-check-circle"></i></template>
+        <template x-if="type === 'error'"><i class="fas fa-times-circle"></i></template>
+        <template x-if="type === 'warning'"><i class="fas fa-exclamation-triangle"></i></template>
+        <template x-if="type === 'info'"><i class="fas fa-info-circle"></i></template>
+        <span x-text="message"></span>
+        <button @click="show = false" class="ml-auto text-lg focus:outline-none">&times;</button>
+    </div>
+    <!-- End Toast Notification -->
+
     <!-- Page Heading -->
     @isset($header)
     <header class="">
@@ -33,79 +57,48 @@
         {{ $slot }}
     </main>
 
+    @stack('scripts')
+    @livewireScripts
 
-    @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-
+    {{-- Toast auto trigger from session flash --}}
+    @if(session('status'))
     <script>
-        // Initialize barcodes for each seat
-        document.addEventListener('DOMContentLoaded', function() {
-            const tickets = document.querySelectorAll('[data-ticket-barcode]');
-            tickets.forEach(ticket => {
-                const barcodeData = ticket.dataset.ticketBarcode;
-                const barcodeId = ticket.dataset.barcodeId;
-                JsBarcode(`#barcode-${barcodeId}`, barcodeData, {
-                    format: "CODE128"
-                    , width: 2
-                    , height: 100
-                    , displayValue: false
-                });
-            });
+        window.addEventListener('DOMContentLoaded', function() {
+            window.dispatchEvent(new CustomEvent('toast', {
+                detail: {
+                    message: @json(session('status'))
+                    , type: 'success'
+                }
+            }));
         });
 
-        // View individual ticket
-        function viewTicket(ticketId, seatId) {
-            const modal = document.getElementById('ticketModal');
-            const content = document.getElementById('ticketModalContent');
-
-            // Here you would typically fetch the ticket details from your backend
-            // For now, we'll just show the barcode
-            content.innerHTML = `
-                <div class="bg-dark-card rounded-lg p-4 border border-gray-700">
-                    <div class="flex justify-center mb-4">
-                        <div id="modal-barcode" class="w-full max-w-[200px]"></div>
-                    </div>
-                    <div class="text-center text-gray-400">
-                        <p>Ticket ID: ${ticketId}-${seatId}</p>
-                        <p class="mt-2">Scan this barcode at the cinema</p>
-                    </div>
-                </div>
-            `;
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-
-            // Initialize barcode in modal
-            JsBarcode("#modal-barcode", `${ticketId}-${seatId}`, {
-                format: "CODE128"
-                , width: 2
-                , height: 100
-                , displayValue: false
-            });
-        }
-
-        // Close ticket modal
-        function closeTicketModal() {
-            const modal = document.getElementById('ticketModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        // Download individual ticket
-        function downloadTicket(ticketId, seatId) {
-            // Here you would implement the download functionality
-            // This could be a PDF generation or image download
-            console.log(`Downloading ticket ${ticketId} for seat ${seatId}`);
-        }
-
-        // Download all tickets
-        function downloadAllTickets() {
-            // Here you would implement the download all functionality
-            console.log('Downloading all tickets');
-        }
+    </script>
+    @endif
+    @if(session('error'))
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            window.dispatchEvent(new CustomEvent('toast', {
+                detail: {
+                    message: @json(session('error'))
+                    , type: 'error'
+                }
+            }));
+        });
 
     </script>
+    @endif
+    @if(session('toast'))
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            window.dispatchEvent(new CustomEvent('toast', {
+                detail: {
+                    message: @json(session('toast.message'))
+                    , type: @json(session('toast.type', 'success'))
+                }
+            }));
+        });
 
-
+    </script>
+    @endif
 </body>
 </html>

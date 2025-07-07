@@ -13,14 +13,16 @@ return new class extends Migration {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('booking_id')->constrained()->onDelete('cascade');
-            $table->string('midtrans_transaction_id')->unique()->nullable();
             $table->string('order_id')->unique();
+            $table->string('payment_type');
+            $table->string('transaction_status');
+            $table->string('transaction_id')->nullable();
+            $table->string('status_message')->nullable();
             $table->decimal('gross_amount', 10, 2);
-            $table->string('transaction_status')->default('pending');
-            $table->dateTime('transaction_time');
-            $table->string('payment_type')->nullable();
-            $table->string('redirect_url')->nullable();
-            $table->text('response_json')->nullable();
+            $table->string('currency', 3)->default('IDR');
+            $table->json('payment_details')->nullable();
+            $table->timestamp('payment_expired_at')->nullable();
+            $table->timestamp('paid_at')->nullable();
             $table->timestamps();
         });
     }

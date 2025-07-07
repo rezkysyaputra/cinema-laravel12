@@ -13,11 +13,12 @@ return new class extends Migration {
         Schema::create('seats', function (Blueprint $table) {
             $table->id();
             $table->foreignId('studio_id')->constrained()->onDelete('cascade');
-            $table->string('seat_number');
-            $table->string('row_letter');
+            $table->string('code');
+            $table->integer('row');
+            $table->integer('number');
             $table->timestamps();
 
-            $table->unique(['studio_id', 'seat_number', 'row_letter']);
+            $table->unique(['studio_id', 'row', 'number']);
         });
     }
 
@@ -27,5 +28,6 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::dropIfExists('seats');
+
     }
 };

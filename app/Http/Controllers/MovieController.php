@@ -14,43 +14,32 @@ class MovieController extends Controller
     {
         $now = now();
 
-        // Get movies that have screenings today or in the future
-        $nowShowingMovies = Movie::whereHas('screenings', function ($query) use ($now) {
-            $query->where('start_time', '>=', $now->startOfDay())
-                ->where('start_time', '<=', $now->copy()->endOfDay());
-        })
-            ->when($request->search, function ($q) use ($request) {
-                $q->where('title', 'like', "%{$request->search}%")
-                    ->orWhere('genre', 'like', "%{$request->search}%");
-            })
-            ->with([
-                'screenings' => function ($query) use ($now) {
-                    $query->where('start_time', '>=', $now->startOfDay())
-                        ->where('start_time', '<=', $now->copy()->endOfDay());
-                }
-            ])
-            ->latest()
-            ->take(8)
-            ->get();
+        $filter = $request->input('filter', 'all'); // Default to 'all'
+        $search = $request->input('search');
 
-        // Get movies that have screenings in the future (after today)
-        $comingSoonMovies = Movie::whereHas('screenings', function ($query) use ($now) {
-            $query->where('start_time', '>', $now->endOfDay());
-        })
-            ->when($request->search, function ($q) use ($request) {
-                $q->where('title', 'like', "%{$request->search}%")
-                    ->orWhere('genre', 'like', "%{$request->search}%");
-            })
-            ->with([
-                'screenings' => function ($query) use ($now) {
-                    $query->where('start_time', '>', $now->endOfDay());
-                }
-            ])
-            ->latest()
-            ->take(8)
-            ->get();
+        $moviesQuery = Movie::query();
 
-        return view('movies.index', compact('nowShowingMovies', 'comingSoonMovies'));
+        if ($filter === 'now_showing') {
+            $moviesQuery->whereHas('screenings', function ($query) use ($now) {
+                $query->where('start_time', '>=', $now->startOfDay());
+            });
+        } elseif ($filter === 'coming_soon') {
+            $moviesQuery->doesntHave('screenings');
+        }
+        // 'all' => tidak ada filter screening
+
+        if ($search) {
+            $moviesQuery->where(function ($query) use ($search) {
+                $query->where('title', 'like', "%{$search}%")
+                    ->orWhere('genre', 'like', "%{$search}%");
+            });
+        }
+
+        $movies = $moviesQuery->with('screenings')
+            ->latest('created_at')
+            ->paginate(10);
+
+        return view('movies.index', compact('movies'));
     }
 
     public function show(Movie $movie)
