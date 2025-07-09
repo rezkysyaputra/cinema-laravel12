@@ -17,7 +17,7 @@ jobs:
           php-version: "8.2"
           extensions: mbstring, bcmath, mysql
 
-      - name: Install Composer Dependencies
+      - name: Install Dependencies
         run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Build Assets
@@ -31,16 +31,15 @@ jobs:
       - name: Generate App Key
         run: php artisan key:generate
 
-      - name: Deploy via SSH
+      - name: Deploy to Shared Hosting via SSH
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
+          username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: 6401
+          port: ${{ secrets.SSH_PORT }}
           source: "."
-          target: "/home/cpaneluser/public_html/cinema-laravel12"
+          target: "/public_html/cinema-laravel12"
           rm: true
           strip_components: 1
 
@@ -48,16 +47,13 @@ jobs:
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
+          username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: 6401
+          port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /home/cpaneluser/public_html/cinema-laravel12
+            cd ~ /public_html/cinema-laravel
             composer install --no-dev --optimize-autoloader
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-
-# Ganti /home/cpaneluser/public_html/cinema-laravel12 dan username sesuai dengan path dan user hosting Anda
