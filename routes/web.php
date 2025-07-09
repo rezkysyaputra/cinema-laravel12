@@ -14,7 +14,7 @@ Route::get('/movies', [MovieController::class, 'index'])->name('movies.index');
 Route::get('/movies/{movie}', [MovieController::class, 'show'])->name('movies.show');
 
 // Authenticated Routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'role:user'])->group(function () {
     // Tickets
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');

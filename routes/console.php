@@ -10,6 +10,8 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Tambahkan penjadwalan command cancel expired payments
-define('schedule_commands', function (Schedule $schedule) {
-    $schedule->command('payments:cancel-expired')->everyMinute();
-});
+if (!defined('schedule_commands')) {
+    define('schedule_commands', function (Schedule $schedule) {
+        $schedule->command('payments:cancel-expired')->everyMinute();
+    });
+}
