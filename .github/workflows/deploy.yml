@@ -1,3 +1,5 @@
+name: Deploy to AnyMhost
+
 on:
   push:
     branches: [main]
@@ -9,12 +11,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p "${{ secrets.SSH_PORT }}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Generate Application Key
+        run: php artisan key:generate --force
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.7
@@ -24,7 +38,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /projects/cinema-laravel12
+            cd ${{ secrets.DEPLOY_PATH }}
             git pull origin main
             composer install --no-dev --optimize-autoloader
             php artisan migrate --force
