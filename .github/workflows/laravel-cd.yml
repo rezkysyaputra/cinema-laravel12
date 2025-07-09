@@ -38,7 +38,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: 22
+          port: 6401
           source: "."
           target: "/home/cpaneluser/public_html/cinema-laravel12"
           rm: true
@@ -51,7 +51,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: 22
+          port: 6401
           script: |
             cd /home/cpaneluser/public_html/cinema-laravel12
             composer install --no-dev --optimize-autoloader
