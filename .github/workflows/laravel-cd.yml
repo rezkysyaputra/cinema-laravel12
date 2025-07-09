@@ -49,7 +49,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
+          port: 6401
           script: |
             cd ~ /public_html/cinema-laravel
             composer install --no-dev --optimize-autoloader
