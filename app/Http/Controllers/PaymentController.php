@@ -73,7 +73,6 @@ class PaymentController extends Controller
                 // Jika ingin reset waktu expired, update expired_at
                 $existingPayment->update([
                     'payment_expired_at' => now()->addMinutes(5),
-                    // update detail lain jika perlu
                 ]);
                 $payment = $existingPayment;
             } else {
@@ -120,17 +119,23 @@ class PaymentController extends Controller
                 throw new \Exception('Payment not found: ' . $orderId);
             }
 
-            $payment->update([
-                'transaction_status' => $transactionStatus,
-                'payment_type' => $paymentType,
-                'payment_details' => (array) $notification
-            ]);
-
             $booking = $payment->booking;
 
             if (!$booking) {
                 throw new \Exception('Booking not found for payment: ' . $orderId);
             }
+
+            // Tambahkan pengecekan status booking
+            if ($booking->status === 'expired') {
+                Log::warning('Payment received for expired booking: ' . $orderId);
+                return response()->json(['message' => 'Booking already expired.'], 400);
+            }
+
+            $payment->update([
+                'transaction_status' => $transactionStatus,
+                'payment_type' => $paymentType,
+                'payment_details' => (array) $notification
+            ]);
 
             // Update booking status based on transaction status
             $statusMap = [
