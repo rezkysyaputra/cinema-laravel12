@@ -3,17 +3,17 @@
         <div class="flex flex-col lg:flex-row gap-8">
             <!-- Sidebar Navigation -->
             <aside class="w-full lg:w-1/4">
-                <nav class="bg-dark-card rounded-lg shadow p-4 space-y-2 sticky top-24">
+                <nav class="bg-dark-card rounded-lg shadow p-2 lg:p-4 flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible">
                     @auth
-                    <a href="#profile" class="block px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition">Profil Akun</a>
+                    <a href="#profile" class="px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition whitespace-nowrap">Profil Akun</a>
                     @endauth
-                    <a href="#guide" class="block px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition">Panduan Pengguna</a>
-                    <a href="#faq" class="block px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition">FAQ</a>
-                    <a href="#terms" class="block px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition">Syarat & Ketentuan</a>
-                    <a href="#privacy" class="block px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition">Kebijakan Privasi</a>
-                    <a href="#about" class="block px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition">Tentang Aplikasi</a>
-                    <a href="#contact" class="block px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition">Kontak & Bantuan</a>
-                    <a href="#payment" class="block px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition">Petunjuk Pembayaran</a>
+                    <a href="#guide" class="px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition whitespace-nowrap">Panduan Pengguna</a>
+                    <a href="#faq" class="px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition whitespace-nowrap">FAQ</a>
+                    <a href="#terms" class="px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition whitespace-nowrap">Syarat & Ketentuan</a>
+                    <a href="#privacy" class="px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition whitespace-nowrap">Kebijakan Privasi</a>
+                    <a href="#about" class="px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition whitespace-nowrap">Tentang Aplikasi</a>
+                    <a href="#contact" class="px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition whitespace-nowrap">Kontak & Bantuan</a>
+                    <a href="#payment" class="px-4 py-2 rounded text-gray-300 hover:bg-orange-500 hover:text-white transition whitespace-nowrap">Petunjuk Pembayaran</a>
                 </nav>
             </aside>
             <!-- Main Content -->

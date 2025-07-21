@@ -55,9 +55,9 @@ class TicketController extends Controller
     public function show(Booking $ticket)
     {
         // Ensure the ticket belongs to the authenticated user
-        if ($ticket->user_id !== Auth::id()) {
-            abort(403);
-        }
+        // if ($ticket->user_id !== Auth::id()) {
+        //     abort(403);
+        // }
 
         $ticket->load(['screening.movie', 'screening.studio', 'seats']);
 
@@ -67,9 +67,9 @@ class TicketController extends Controller
     public function downloadTicket(Ticket $ticket)
     {
         // Ensure the ticket belongs to the authenticated user
-        if ($ticket->booking->user_id !== Auth::id()) {
-            abort(403);
-        }
+        // if ($ticket->booking->user_id !== Auth::id()) {
+        //     abort(403);
+        // }
 
 
         $ticket->load(['booking.screening.movie', 'booking.screening.studio', 'booking.user', 'seat']);
@@ -266,9 +266,10 @@ class TicketController extends Controller
     public function see(Booking $ticket)
     {
         // Ensure the ticket belongs to the authenticated user
-        if ($ticket->user_id !== Auth::id()) {
-            abort(403);
-        }
+        // if ($ticket->user_id !== Auth::id()) {
+        //     abort(403);
+        // }
+
         $ticket->load(['screening.movie', 'screening.studio', 'tickets.seat']);
 
         // Generate QR for each ticket
