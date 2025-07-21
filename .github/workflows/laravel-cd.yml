@@ -1,14 +1,14 @@
-name: Laravel Deploy to Production
+name: Laravel CD
 
 on:
   push:
     branches:
-      - main # Workflow ini akan berjalan setiap kali ada push ke branch 'main'
+      - main # Workflow akan berjalan setiap kali ada push ke branch 'main'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # environment: production # Opsional: Menentukan environment, berguna untuk memisahkan secrets
+    # environment: production # Opsional, untuk manajemen environment di GitHub
 
     steps:
       - name: Checkout code
@@ -18,7 +18,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2" # Sesuaikan dengan versi PHP di shared hosting Anda
-          extensions: mbstring, pdo_mysql, dom, gd, json, bcmath, exif, fileinfo, imagick # Tambahkan ekstensi yang dibutuhkan
+          extensions: mbstring, pdo_mysql, dom, gd, json, bcmath, exif, fileinfo, imagick # Pastikan semua ekstensi penting ada
           tools: composer:v2
 
       - name: Get Composer Cache Directory
@@ -34,12 +34,12 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Install Composer dependencies (production)
-        run: composer install --no-dev --prefer-dist --optimize-autoloader
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Install Node.js dependencies (if using frontend assets like Vite/Vue/React)
+      - name: Setup Node.js (for frontend build)
         uses: actions/setup-node@v4
         with:
-          node-version: "20" # Sesuaikan versi Node.js
+          node-version: "20" # Sesuaikan dengan versi Node.js yang Anda inginkan
 
       - name: Cache Node.js modules
         uses: actions/cache@v4
@@ -50,48 +50,48 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install NPM dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Build frontend assets (production)
-        run: npm run build # Ganti dengan perintah build Anda (misal: npm run dev, vite build)
+      - name: Build Assets
+        run: npm run build
 
-      - name: Deploy via SSH and rsync
+      - name: Deploy to Shared Hosting via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "." # Mengunggah semua file dan folder dari root proyek di runner
+          target: "${{ secrets.APP_SERVER_DIR }}" # Tujuan di server, harus path absolut.
+          rm: true # Ini akan menghapus semua konten di direktori target sebelum mengunggah yang baru.
+
+      - name: Run Post-Deployment Commands via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }} # Menggunakan SSH Private Key
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            # Membuat direktori aplikasi jika belum ada
-            mkdir -p ${{ secrets.APP_SERVER_DIR }}
-
-            # Mengunggah file menggunakan rsync
-            # --delete akan menghapus file di server yang tidak ada di lokal (GitHub Actions runner)
-            # --exclude digunakan untuk tidak mengunggah file/folder yang tidak diperlukan di server
-            rsync -avz --delete \
-              --exclude '.git/' \
-              --exclude '.github/' \
-              --exclude 'node_modules/' \
-              --exclude 'tests/' \
-              --exclude '.env.example' \
-              --exclude '.vscode/' \
-              --exclude 'README.md' \
-              --exclude 'phpstan.neon.dist' \
-              --exclude 'phpunit.xml' \
-              ./ ${{ secrets.APP_SERVER_DIR }}/
-
-            # Jalankan perintah Laravel di server
+            # Pindah ke direktori aplikasi yang baru diunggah
             cd ${{ secrets.APP_SERVER_DIR }}
+
+            # --- Bagian Kunci untuk .env ---
+            # Menulis file .env dari GitHub Secret
+            echo "${{ secrets.PROD_ENV_CONTENT }}" > .env
+            # Pastikan hak akses file .env aman
+            chmod 600 .env
+            # --- Akhir Bagian Kunci ---
+
             php artisan migrate --force # HATI-HATI! Pastikan ini aman untuk database Anda
-            php artisan cache:clear # Selalu bersihkan cache setelah deployment
+            php artisan cache:clear
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-            php artisan storage:link # Jika Anda menggunakan storage symlink, pastikan ini dijalankan
+            php artisan storage:link # Jika Anda menggunakan storage symlink
 
-            # Opsional: Update symlink public_html (jika public_html adalah symlink ke folder public Laravel)
-            # Ini akan menghapus symlink lama dan membuat yang baru, memastikan traffic web selalu mengarah ke versi terbaru
-            # HATI-HATI: Pastikan symlink sudah dibuat manual setidaknya sekali sebelum mengaktifkan ini.
+            # Opsional: Update symlink public_html
+            # HATI-HATI: Pastikan symlink sudah dibuat manual setidaknya sekali.
             # rm -rf ${{ secrets.APP_WEB_ROOT_DIR }}
             # ln -s ${{ secrets.APP_SERVER_DIR }}/public ${{ secrets.APP_WEB_ROOT_DIR }}
