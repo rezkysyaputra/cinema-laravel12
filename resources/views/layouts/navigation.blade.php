@@ -66,20 +66,18 @@
     </nav>
 
     <!-- Mobile Navigation -->
-    <div class="lg:hidden">
+    <div class="lg:hidden fixed inset-0 flex flex-col z-50 pointer-events-none">
         <!-- Mobile Header -->
-        <header class="px-4 py-4 bg-dark-bg border-b border-gray-800">
+        <header class="px-4 py-4 bg-dark-bg border-b border-gray-800 pointer-events-auto">
             <div class="flex items-center justify-between">
                 <a href="{{ route('home') }}" class="flex items-center space-x-2">
                     <h1 class="text-xl font-bold text-orange-500">CINETIX</h1>
                 </a>
-
                 @auth
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center">
                         <span class="text-white font-medium">{{ substr(Auth::user()->name, 0, 1) }}</span>
                     </button>
-
                     <!-- Mobile Profile Menu -->
                     <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-dark-card rounded-lg shadow-lg py-1 z-50">
                         <div class="px-4 py-2 border-b border-gray-700">
@@ -109,9 +107,9 @@
                 @endauth
             </div>
         </header>
-
+        <div class="flex-1"></div>
         <!-- Mobile Bottom Navigation -->
-        <nav class="fixed bottom-0 left-0 right-0 bg-dark-card border-t border-gray-800 z-50">
+        <nav class="fixed bottom-0 left-0 right-0 bg-dark-card border-t border-gray-800 z-50 pointer-events-auto">
             <div class="grid grid-cols-4 h-16">
                 <a href="{{ route('home') }}" class="flex flex-col items-center justify-center {{ request()->routeIs('home') ? 'text-orange-500' : 'text-gray-400 hover:text-orange-500' }} transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

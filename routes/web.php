@@ -17,10 +17,10 @@ Route::get('/movies/{movie}', [MovieController::class, 'show'])->name('movies.sh
 Route::middleware(['auth', 'role:user'])->group(function () {
     // Tickets
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
-    Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+    Route::get('/tickets/{booking}', [TicketController::class, 'show'])->name('tickets.show');
     Route::get('/tickets/{ticket}/download', [\App\Http\Controllers\TicketController::class, 'downloadTicket'])->name('tickets.download');
     Route::get('/tickets/booking/{booking}/download', [TicketController::class, 'downloadAllTickets'])->name('tickets.download.all');
-    Route::get('/tickets/booking/{ticket}/see', [\App\Http\Controllers\TicketController::class, 'see'])->name('tickets.see');
+    Route::get('/tickets/booking/{booking}/see', [\App\Http\Controllers\TicketController::class, 'see'])->name('tickets.see');
 
     // Bookings
     Route::get('/booking/screening/{screening}', [BookingController::class, 'create'])->name('booking.create');
