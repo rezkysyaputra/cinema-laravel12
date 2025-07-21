@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Movie;
-use App\Models\Seat;
 use App\Models\Studio;
 use App\Models\User;
 use Database\Seeders\ScreeningSeeder;
