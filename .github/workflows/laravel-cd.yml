@@ -3,12 +3,11 @@ name: Laravel CD
 on:
   push:
     branches:
-      - main # Workflow akan berjalan setiap kali ada push ke branch 'main'
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # environment: production # Opsional, untuk manajemen environment di GitHub
 
     steps:
       - name: Checkout code
@@ -17,8 +16,8 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.2" # Sesuaikan dengan versi PHP di shared hosting Anda
-          extensions: mbstring, pdo_mysql, dom, gd, json, bcmath, exif, fileinfo, imagick # Pastikan semua ekstensi penting ada
+          php-version: "8.2"
+          extensions: mbstring, pdo_mysql, dom, gd, json, bcmath, exif, fileinfo, imagick
           tools: composer:v2
 
       - name: Get Composer Cache Directory
@@ -39,7 +38,7 @@ jobs:
       - name: Setup Node.js (for frontend build)
         uses: actions/setup-node@v4
         with:
-          node-version: "20" # Sesuaikan dengan versi Node.js yang Anda inginkan
+          node-version: "20"
 
       - name: Cache Node.js modules
         uses: actions/cache@v4
@@ -62,9 +61,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "." # Mengunggah semua file dan folder dari root proyek di runner
-          target: "${{ secrets.APP_SERVER_DIR }}" # Tujuan di server, harus path absolut.
-          rm: true # Ini akan menghapus semua konten di direktori target sebelum mengunggah yang baru.
+          source: "."
+          target: "${{ secrets.APP_SERVER_DIR }}"
+          rm: true
 
       - name: Run Post-Deployment Commands via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -74,24 +73,17 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            # Pindah ke direktori aplikasi yang baru diunggah
             cd ${{ secrets.APP_SERVER_DIR }}
 
-            # --- Bagian Kunci untuk .env ---
-            # Menulis file .env dari GitHub Secret
             echo "${{ secrets.PROD_ENV_CONTENT }}" > .env
-            # Pastikan hak akses file .env aman
             chmod 600 .env
-            # --- Akhir Bagian Kunci ---
 
-            php artisan migrate --force # HATI-HATI! Pastikan ini aman untuk database Anda
+            php artisan migrate --force
             php artisan cache:clear
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-            php artisan storage:link # Jika Anda menggunakan storage symlink
+            php artisan storage:link
 
-            # Opsional: Update symlink public_html
-            # HATI-HATI: Pastikan symlink sudah dibuat manual setidaknya sekali.
             # rm -rf ${{ secrets.APP_WEB_ROOT_DIR }}
             # ln -s ${{ secrets.APP_SERVER_DIR }}/public ${{ secrets.APP_WEB_ROOT_DIR }}

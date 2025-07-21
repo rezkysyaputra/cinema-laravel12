@@ -72,7 +72,7 @@ class PaymentController extends Controller
             if ($existingPayment) {
                 // Jika ingin reset waktu expired, update expired_at
                 $existingPayment->update([
-                    'payment_expired_at' => now()->addMinutes(30),
+                    'payment_expired_at' => now()->addMinutes(5),
                     // update detail lain jika perlu
                 ]);
                 $payment = $existingPayment;
@@ -85,7 +85,7 @@ class PaymentController extends Controller
                     'gross_amount' => $booking->total_price + 5000,
                     'currency' => 'IDR',
                     'payment_details' => $params,
-                    'payment_expired_at' => now()->addMinutes(30),
+                    'payment_expired_at' => now()->addMinutes(5),
                 ]);
             }
 

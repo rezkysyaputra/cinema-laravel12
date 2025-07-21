@@ -44,7 +44,13 @@ class MovieController extends Controller
 
     public function show(Movie $movie)
     {
-        $movie->load(['screenings.studio']);
+        $now = now();
+        $movie->load([
+            'screenings' => function ($query) use ($now) {
+                $query->where('start_time', '>=', $now)->orderBy('start_time');
+            },
+            'screenings.studio'
+        ]);
         return view('movies.show', compact('movie'));
 
     }

@@ -9,7 +9,7 @@ use Carbon\Carbon;
 class CancelExpiredPayments extends Command
 {
     protected $signature = 'payments:cancel-expired';
-    protected $description = 'Cancel all pending payments that have expired.';
+    protected $description = 'Cancel all pending payments that have expired (after 5 minutes).';
 
     public function handle()
     {
