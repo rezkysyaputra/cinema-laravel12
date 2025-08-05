@@ -66,17 +66,18 @@
     </nav>
 
     <!-- Mobile Navigation -->
-    <div class="lg:hidden fixed inset-0 flex flex-col z-50 pointer-events-none">
+    <div class="lg:hidden">
         <!-- Mobile Header -->
-        <header class="px-4 py-4 bg-dark-bg border-b border-gray-800 pointer-events-auto">
-            <div class="flex items-center justify-between">
+        <header class="fixed top-0 left-0 right-0 bg-dark-bg border-b border-gray-800 z-40">
+            <div class="flex items-center justify-between px-4 py-3">
                 <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                    <h1 class="text-xl font-bold text-orange-500">CINETIX</h1>
+                    <h1 class="text-lg font-bold text-orange-500">CINETIX</h1>
                 </a>
+
                 @auth
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center">
-                        <span class="text-white font-medium">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                        <span class="text-white font-medium text-sm">{{ substr(Auth::user()->name, 0, 1) }}</span>
                     </button>
                     <!-- Mobile Profile Menu -->
                     <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-dark-card rounded-lg shadow-lg py-1 z-50">
@@ -107,34 +108,47 @@
                 @endauth
             </div>
         </header>
-        <div class="flex-1"></div>
+
         <!-- Mobile Bottom Navigation -->
-        <nav class="fixed bottom-0 left-0 right-0 bg-dark-card border-t border-gray-800 z-50 pointer-events-auto">
+        <nav class="fixed bottom-0 left-0 right-0 bg-dark-card border-t border-gray-800 z-40">
             <div class="grid grid-cols-4 h-16">
                 <a href="{{ route('home') }}" class="flex flex-col items-center justify-center {{ request()->routeIs('home') ? 'text-orange-500' : 'text-gray-400 hover:text-orange-500' }} transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                     </svg>
                     <span class="text-xs mt-1">Home</span>
                 </a>
                 <a href="{{ route('movies.index') }}" class="flex flex-col items-center justify-center {{ request()->routeIs('movies.*') ? 'text-orange-500' : 'text-gray-400 hover:text-orange-500' }} transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
                     </svg>
                     <span class="text-xs mt-1">Movies</span>
                 </a>
                 <a href="{{ route('tickets.index') }}" class="flex flex-col items-center justify-center {{ request()->routeIs('tickets.*') ? 'text-orange-500' : 'text-gray-400 hover:text-orange-500' }} transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
                     </svg>
                     <span class="text-xs mt-1">Tickets</span>
                 </a>
+                @auth
                 <a href="{{ route('settings.index') }}" class="flex flex-col items-center justify-center {{ request()->routeIs('settings.index') ? 'text-orange-500' : 'text-gray-400 hover:text-orange-500' }} transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0-6v2m0 16v2m8-8h2M2 12H4m15.36-6.36l1.42 1.42M4.22 19.78l1.42-1.42m12.02 0l1.42 1.42M4.22 4.22l1.42 1.42" />
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
                     <span class="text-xs mt-1">Settings</span>
                 </a>
+                @else
+                <a href="{{ route('login') }}" class="flex flex-col items-center justify-center text-gray-400 hover:text-orange-500 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                    </svg>
+                    <span class="text-xs mt-1">Login</span>
+                </a>
+                @endauth
             </div>
         </nav>
+
+        <!-- Mobile Content Padding -->
+        <div class="pt-16 pb-20"></div>
     </div>
