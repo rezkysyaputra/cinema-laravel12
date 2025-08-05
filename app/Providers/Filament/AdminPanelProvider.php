@@ -55,8 +55,8 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
-                \Spatie\Permission\Middleware\RoleMiddleware::using('admin'),
+                // Authenticate::class,
+                // \Spatie\Permission\Middleware\RoleMiddleware::using('admin'),
             ]);
     }
 }
